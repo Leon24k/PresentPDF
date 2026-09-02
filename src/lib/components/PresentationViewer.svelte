@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import type { Presentation } from '../types';
   import { createPresentationStore } from '../stores/presentationStore.svelte';
   import SlideTransitionWrapper from './SlideTransitionWrapper.svelte';
@@ -8,6 +8,7 @@
   import PresenterHUD from './PresenterHUD.svelte';
   import ThumbnailGrid from './ThumbnailGrid.svelte';
   import ShortcutsModal from './ShortcutsModal.svelte';
+  import { ArrowLeft } from 'lucide-svelte';
 
   interface Props {
     presentation: Presentation;
@@ -25,7 +26,35 @@
   onMount(() => {
     store.init(presentation, pdfDoc);
 
-    const onKeyDown = (e: KeyboardEvent) => store.handleKeydown(e);
+    const onKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        if (store.isGridOpen) {
+          store.isGridOpen = false;
+        } else if (store.isShortcutsOpen) {
+          store.toggleShortcuts();
+        } else if (store.isBlackout) {
+          store.toggleBlackout();
+        } else if (store.isWhiteout) {
+          store.toggleWhiteout();
+        } else if (store.isLaserActive) {
+          store.toggleLaser();
+        } else if (store.isPenActive) {
+          store.togglePen();
+        } else {
+          // ESC exits presentation back to dashboard!
+          onExit();
+        }
+        return;
+      }
+
+      store.handleKeydown(e);
+    };
+
     window.addEventListener('keydown', onKeyDown);
 
     return () => {
@@ -66,8 +95,17 @@
 >
   <!-- Top Minimal Floating Header (Fade out with mouse idle) -->
   <div class="absolute top-4 left-4 right-4 flex items-center justify-between z-30 pointer-events-none">
-    <div class="flex items-center gap-3 pointer-events-auto">
-      <div class="px-3 py-1.5 rounded-xl glass-pill text-xs font-semibold text-slate-300 max-w-xs truncate shadow">
+    <div class="flex items-center gap-2 pointer-events-auto">
+      <button
+        onclick={onExit}
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-pill text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/10 transition-colors shadow"
+        title="Exit Presentation (ESC)"
+      >
+        <ArrowLeft class="w-3.5 h-3.5" />
+        <span>Exit (ESC)</span>
+      </button>
+
+      <div class="px-3 py-1.5 rounded-xl glass-pill text-xs font-medium text-slate-400 max-w-xs truncate shadow hidden sm:block">
         {presentation.title}
       </div>
     </div>
