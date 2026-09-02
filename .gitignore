@@ -1,0 +1,5 @@
+node_modules
+.antigravity
+dist
+.DS_Store
+*.log
