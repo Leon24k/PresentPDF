@@ -23,12 +23,19 @@
     maxHeight = 1080,
   }: Props = $props();
 
-  let displayedSlide = $state<number>(currentSlide);
+  let displayedSlide = $state<number>(1);
   let outgoingSlide = $state<number | null>(null);
   let isTransitioning = $state<boolean>(false);
   let transitionTimer: ReturnType<typeof setTimeout> | null = null;
+  let isInitial = true;
 
   $effect(() => {
+    if (isInitial) {
+      displayedSlide = currentSlide;
+      isInitial = false;
+      return;
+    }
+
     if (currentSlide !== displayedSlide) {
       if (transitionTimer) clearTimeout(transitionTimer);
       outgoingSlide = displayedSlide;

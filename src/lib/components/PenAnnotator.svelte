@@ -200,6 +200,8 @@
         {#each colors as color}
           <button
             onclick={() => (selectedColor = color)}
+            title="Select {color} color"
+            aria-label="Color {color}"
             class="w-5 h-5 rounded-full transition-transform hover:scale-110 {selectedColor ===
             color
               ? 'ring-2 ring-white ring-offset-1 ring-offset-dark-bg scale-110'

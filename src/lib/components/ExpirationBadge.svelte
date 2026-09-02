@@ -10,14 +10,21 @@
 
   let { expiresAt, className = '' }: Props = $props();
 
-  let timeString = $state<string>(formatTimeRemaining(expiresAt));
-  let isExpired = $state<boolean>(Date.now() >= expiresAt);
+  let tick = $state<number>(0);
+  let timeString = $derived.by(() => {
+    // depend on tick for 1-second interval refresh
+    tick;
+    return formatTimeRemaining(expiresAt);
+  });
+  let isExpired = $derived.by(() => {
+    tick;
+    return Date.now() >= expiresAt;
+  });
   let interval: ReturnType<typeof setInterval> | null = null;
 
   onMount(() => {
     interval = setInterval(() => {
-      timeString = formatTimeRemaining(expiresAt);
-      isExpired = Date.now() >= expiresAt;
+      tick++;
     }, 1000);
   });
 

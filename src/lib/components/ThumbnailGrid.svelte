@@ -50,6 +50,7 @@
 {#if isOpen}
   <!-- Backdrop -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
     class="fixed inset-0 bg-dark-bg/90 backdrop-blur-xl z-50 flex flex-col animate-fade-in p-6 sm:p-10 select-none overflow-y-auto"
     onclick={(e) => {

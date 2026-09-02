@@ -25,6 +25,7 @@
 
 {#if isOpen}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
     class="fixed inset-0 bg-dark-bg/85 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in select-none"
     onclick={(e) => {
