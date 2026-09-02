@@ -17,9 +17,10 @@
     { key: 'B / .', desc: 'Blackout screen (Focus attention)' },
     { key: 'W / ,', desc: 'Whiteout screen' },
     { key: 'F', desc: 'Toggle Fullscreen Mode' },
+    { key: 'H', desc: 'Toggle / Hide Top Header Bar' },
     { key: 'Home / End', desc: 'Jump to First / Last slide' },
     { key: '?', desc: 'Open this Shortcuts Guide' },
-    { key: 'ESC', desc: 'Close dialogs / exit overlays' },
+    { key: 'ESC', desc: 'Exit presentation / Close overlay' },
   ];
 </script>
 

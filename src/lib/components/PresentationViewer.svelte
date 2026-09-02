@@ -8,7 +8,7 @@
   import PresenterHUD from './PresenterHUD.svelte';
   import ThumbnailGrid from './ThumbnailGrid.svelte';
   import ShortcutsModal from './ShortcutsModal.svelte';
-  import { ArrowLeft } from 'lucide-svelte';
+  import { ArrowLeft, ChevronUp, ChevronDown } from 'lucide-svelte';
 
   interface Props {
     presentation: Presentation;
@@ -20,15 +20,35 @@
 
   const store = createPresentationStore();
 
+  let isTopBarPinned = $state<boolean>(true);
+  let isMouseActive = $state<boolean>(true);
+  let mouseIdleTimeout: ReturnType<typeof setTimeout> | null = null;
   let touchStartX = 0;
   let touchStartY = 0;
+
+  function handleUserActivity() {
+    isMouseActive = true;
+    if (mouseIdleTimeout) clearTimeout(mouseIdleTimeout);
+    mouseIdleTimeout = setTimeout(() => {
+      isMouseActive = false;
+    }, 3500);
+  }
 
   onMount(() => {
     store.init(presentation, pdfDoc);
 
     const onKeyDown = (e: KeyboardEvent) => {
+      handleUserActivity();
+
       const target = e.target as HTMLElement;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        return;
+      }
+
+      // 'H' toggles the top header bar
+      if (e.key === 'h' || e.key === 'H') {
+        e.preventDefault();
+        isTopBarPinned = !isTopBarPinned;
         return;
       }
 
@@ -56,9 +76,13 @@
     };
 
     window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('mousemove', handleUserActivity);
+    handleUserActivity();
 
     return () => {
       window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('mousemove', handleUserActivity);
+      if (mouseIdleTimeout) clearTimeout(mouseIdleTimeout);
       store.stopTimer();
     };
   });
@@ -93,8 +117,12 @@
   ontouchstart={handleTouchStart}
   ontouchend={handleTouchEnd}
 >
-  <!-- Top Minimal Floating Header (Fade out with mouse idle) -->
-  <div class="absolute top-4 left-4 right-4 flex items-center justify-between z-30 pointer-events-none">
+  <!-- Top Floating Header Bar -->
+  <div
+    class="absolute top-4 left-4 right-4 flex items-center justify-between z-30 transition-all duration-300 transform {isTopBarPinned && isMouseActive
+      ? 'translate-y-0 opacity-100'
+      : '-translate-y-16 opacity-0 pointer-events-none'}"
+  >
     <div class="flex items-center gap-2 pointer-events-auto">
       <button
         onclick={onExit}
@@ -108,8 +136,32 @@
       <div class="px-3 py-1.5 rounded-xl glass-pill text-xs font-medium text-slate-400 max-w-xs truncate shadow hidden sm:block">
         {presentation.title}
       </div>
+
+      <!-- Hide Topbar Button -->
+      <button
+        onclick={() => (isTopBarPinned = false)}
+        class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl glass-pill text-xs font-medium text-slate-400 hover:text-white hover:bg-white/10 transition-colors shadow"
+        title="Hide Top Bar (H)"
+      >
+        <ChevronUp class="w-3.5 h-3.5" />
+        <span class="hidden md:inline">Hide Header</span>
+      </button>
     </div>
   </div>
+
+  <!-- Unhide Button (Revealed when topbar is hidden) -->
+  {#if !isTopBarPinned}
+    <div class="absolute top-3 left-4 z-30 animate-fade-in pointer-events-auto">
+      <button
+        onclick={() => (isTopBarPinned = true)}
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-pill text-xs font-medium text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-lg hover:scale-105"
+        title="Show Top Bar (H)"
+      >
+        <ChevronDown class="w-3.5 h-3.5 text-brand-400" />
+        <span>Show Header (H)</span>
+      </button>
+    </div>
+  {/if}
 
   <!-- Main Slide Presentation Stage -->
   <div class="relative w-full h-full flex items-center justify-center overflow-hidden">
