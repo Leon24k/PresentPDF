@@ -41,7 +41,7 @@ f
 BT
 /F1 44 Tf
 80 460 Td
-(HostPDF: Next-Gen PDF Presentation) Tj
+(PresentPDF: Next-Gen PDF Presentation) Tj
 /F2 20 Tf
 0 -80 Td
 0.7 0.75 0.85 rg
@@ -130,7 +130,7 @@ BT
 /F1 18 Tf
 0 -80 Td
 0.39 0.40 0.95 rg
-(Enjoy your presentation with HostPDF!) Tj
+(Enjoy your presentation with PresentPDF!) Tj
 ET
 endstream
 endobj

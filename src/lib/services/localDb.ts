@@ -1,7 +1,7 @@
 import { openDB, type IDBPDatabase } from 'idb';
 import type { Presentation } from '../types';
 
-const DB_NAME = 'HostPdfDB';
+const DB_NAME = 'PresentPdfDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'presentations';
 

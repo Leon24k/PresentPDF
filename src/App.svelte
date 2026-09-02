@@ -99,7 +99,7 @@
             <Layers class="w-5 h-5 text-white" />
           </div>
           <div>
-            <span class="text-lg font-bold tracking-tight text-white font-display">Host<span class="text-brand-400">PDF</span></span>
+            <span class="text-lg font-bold tracking-tight text-white font-display">Present<span class="text-brand-400">PDF</span></span>
             <span class="hidden sm:inline-block ml-2 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-500/10 text-brand-300 border border-brand-500/20">
               v1.0 • 24h Purge
             </span>
@@ -114,7 +114,7 @@
           </div>
 
           <a
-            href="https://github.com"
+            href="https://github.com/Leon24k/PresentPDF"
             target="_blank"
             rel="noopener noreferrer"
             class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
@@ -214,7 +214,7 @@
     <!-- Footer -->
     <footer class="border-t border-white/5 py-6 bg-dark-bg/60 text-center text-xs text-slate-500">
       <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <p>© 2026 HostPDF • Built for high-speed Canva, Gamma & AI presentation workflows.</p>
+        <p>© 2026 PresentPDF • Built for high-speed Canva, Gamma & AI presentation workflows.</p>
         <p class="text-slate-400 flex items-center gap-1.5">
           <span class="w-1.5 h-1.5 rounded-full bg-brand-400"></span>
           <span>Zero Server Storage • Ephemeral 24h Auto-Purge</span>

@@ -65,7 +65,7 @@
 
     try {
       const buffer = generateSamplePdfBuffer();
-      await processPdfBuffer(buffer, 'HostPDF Demo Showcase.pdf', buffer.byteLength);
+      await processPdfBuffer(buffer, 'PresentPDF Demo Showcase.pdf', buffer.byteLength);
     } catch (err: any) {
       console.error('Error loading sample:', err);
       errorMessage = err?.message || 'Failed to load demo presentation.';
