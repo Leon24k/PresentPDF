@@ -7,17 +7,15 @@
     ChevronRight,
     Play,
     Pause,
-    RotateCcw,
-    Layers,
     Crosshair,
     PenTool,
-    Grid,
-    EyeOff,
+    Moon,
     Maximize,
     Minimize,
     HelpCircle,
     ArrowLeft,
     Sparkles,
+    EyeOff,
   } from 'lucide-svelte';
 
   interface Props {
@@ -29,6 +27,7 @@
     isBlackout: boolean;
     isFullscreen: boolean;
     isAutoPlaying: boolean;
+    isUIHidden: boolean;
     elapsedSeconds: number;
     isTimerRunning: boolean;
     onPrev: () => void;
@@ -40,6 +39,7 @@
     onToggleGrid: () => void;
     onToggleFullscreen: () => void;
     onToggleAutoPlay: () => void;
+    onToggleHideUI: () => void;
     onToggleShortcuts: () => void;
     onStartTimer: () => void;
     onStopTimer: () => void;
@@ -56,6 +56,7 @@
     isBlackout,
     isFullscreen,
     isAutoPlaying,
+    isUIHidden,
     elapsedSeconds,
     isTimerRunning,
     onPrev,
@@ -67,6 +68,7 @@
     onToggleGrid,
     onToggleFullscreen,
     onToggleAutoPlay,
+    onToggleHideUI,
     onToggleShortcuts,
     onStartTimer,
     onStopTimer,
@@ -115,9 +117,9 @@
 <!-- Floating Presenter HUD Toolbar -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-  class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 transform select-none {isVisible
+  class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 transition-all duration-300 transform select-none {!isUIHidden && isVisible
     ? 'translate-y-0 opacity-100'
-    : 'translate-y-16 opacity-0 pointer-events-none'}"
+    : 'translate-y-24 opacity-0 pointer-events-none'}"
   onmouseenter={() => (isVisible = true)}
 >
   <div class="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-2xl glass-panel text-white shadow-2xl border border-white/10">
@@ -125,7 +127,7 @@
     <button
       onclick={onExit}
       class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-      title="Exit Presentation"
+      title="Exit Presentation (ESC)"
     >
       <ArrowLeft class="w-4 h-4" />
     </button>
@@ -250,7 +252,7 @@
         : 'text-slate-400 hover:text-white hover:bg-white/10'}"
       title="Blackout Screen (B)"
     >
-      <EyeOff class="w-4 h-4" />
+      <Moon class="w-4 h-4" />
     </button>
 
     <!-- Autoplay Slideshow -->
@@ -262,6 +264,15 @@
       title={isAutoPlaying ? 'Stop Auto-Play' : 'Start Auto-Play (5s / slide)'}
     >
       <Play class="w-4 h-4" />
+    </button>
+
+    <!-- Hide All Toolbars & Controls -->
+    <button
+      onclick={onToggleHideUI}
+      class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+      title="Hide All Toolbars (H)"
+    >
+      <EyeOff class="w-4 h-4" />
     </button>
 
     <!-- Shortcuts Dialog -->

@@ -8,7 +8,7 @@
   import PresenterHUD from './PresenterHUD.svelte';
   import ThumbnailGrid from './ThumbnailGrid.svelte';
   import ShortcutsModal from './ShortcutsModal.svelte';
-  import { ArrowLeft, ChevronUp, ChevronDown } from 'lucide-svelte';
+  import { ArrowLeft, ChevronUp, ChevronDown, Eye } from 'lucide-svelte';
 
   interface Props {
     presentation: Presentation;
@@ -20,7 +20,7 @@
 
   const store = createPresentationStore();
 
-  let isTopBarPinned = $state<boolean>(true);
+  let isUIHidden = $state<boolean>(false);
   let isMouseActive = $state<boolean>(true);
   let mouseIdleTimeout: ReturnType<typeof setTimeout> | null = null;
   let touchStartX = 0;
@@ -45,10 +45,10 @@
         return;
       }
 
-      // 'H' toggles the top header bar
-      if (e.key === 'h' || e.key === 'H') {
+      // 'H' or 'T' toggles all UI controls (Zen / Clean Presentation Mode)
+      if (e.key === 'h' || e.key === 'H' || e.key === 't' || e.key === 'T') {
         e.preventDefault();
-        isTopBarPinned = !isTopBarPinned;
+        isUIHidden = !isUIHidden;
         return;
       }
 
@@ -119,9 +119,9 @@
 >
   <!-- Top Floating Header Bar -->
   <div
-    class="absolute top-4 left-4 right-4 flex items-center justify-between z-30 transition-all duration-300 transform {isTopBarPinned && isMouseActive
+    class="absolute top-4 left-4 right-4 flex items-center justify-between z-30 transition-all duration-300 transform {!isUIHidden && isMouseActive
       ? 'translate-y-0 opacity-100'
-      : '-translate-y-16 opacity-0 pointer-events-none'}"
+      : '-translate-y-20 opacity-0 pointer-events-none'}"
   >
     <div class="flex items-center gap-2 pointer-events-auto">
       <button
@@ -137,28 +137,28 @@
         {presentation.title}
       </div>
 
-      <!-- Hide Topbar Button -->
+      <!-- Hide Controls Button -->
       <button
-        onclick={() => (isTopBarPinned = false)}
+        onclick={() => (isUIHidden = true)}
         class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl glass-pill text-xs font-medium text-slate-400 hover:text-white hover:bg-white/10 transition-colors shadow"
-        title="Hide Top Bar (H)"
+        title="Hide All Toolbars & Header (H)"
       >
         <ChevronUp class="w-3.5 h-3.5" />
-        <span class="hidden md:inline">Hide Header</span>
+        <span class="hidden md:inline">Hide Toolbars (H)</span>
       </button>
     </div>
   </div>
 
-  <!-- Unhide Button (Revealed when topbar is hidden) -->
-  {#if !isTopBarPinned}
+  <!-- Subtle Reveal Button (Shown when all UI is hidden) -->
+  {#if isUIHidden}
     <div class="absolute top-3 left-4 z-30 animate-fade-in pointer-events-auto">
       <button
-        onclick={() => (isTopBarPinned = true)}
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-pill text-xs font-medium text-slate-400 hover:text-white hover:bg-white/10 transition-all shadow-lg hover:scale-105"
-        title="Show Top Bar (H)"
+        onclick={() => (isUIHidden = false)}
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl glass-pill text-xs font-medium text-slate-300 hover:text-white hover:bg-white/10 transition-all shadow-lg hover:scale-105 border border-brand-500/30"
+        title="Show All Toolbars (H)"
       >
-        <ChevronDown class="w-3.5 h-3.5 text-brand-400" />
-        <span>Show Header (H)</span>
+        <Eye class="w-3.5 h-3.5 text-brand-400" />
+        <span>Show Controls (H)</span>
       </button>
     </div>
   {/if}
@@ -213,6 +213,7 @@
     isBlackout={store.isBlackout}
     isFullscreen={store.isFullscreen}
     isAutoPlaying={store.isAutoPlaying}
+    {isUIHidden}
     elapsedSeconds={store.elapsedSeconds}
     isTimerRunning={store.isTimerRunning}
     onPrev={() => store.prevSlide()}
@@ -224,6 +225,7 @@
     onToggleGrid={() => store.toggleGrid()}
     onToggleFullscreen={() => store.toggleFullscreen()}
     onToggleAutoPlay={() => store.toggleAutoPlay(5)}
+    onToggleHideUI={() => (isUIHidden = !isUIHidden)}
     onToggleShortcuts={() => store.toggleShortcuts()}
     onStartTimer={() => store.startTimer()}
     onStopTimer={() => store.stopTimer()}
