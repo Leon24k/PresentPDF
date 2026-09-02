@@ -1,12 +1,10 @@
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import type { AspectRatio } from '../types';
 
-// Configure PDF.js worker
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url
-  ).toString();
+// Configure PDF.js worker using Vite's static asset URL resolver in browser
+if (typeof window !== 'undefined' && typeof Worker !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 }
 
 /**
@@ -29,14 +27,29 @@ export function calculateAspectRatio(width: number, height: number): AspectRatio
 }
 
 /**
- * Loads a PDF document from an ArrayBuffer or Uint8Array
+ * Loads a PDF document from an ArrayBuffer or Uint8Array safely without detaching buffers
  */
 export async function loadPdfDocument(source: ArrayBuffer | Uint8Array | string): Promise<pdfjsLib.PDFDocumentProxy> {
+  let dataParam: Uint8Array | string;
+
+  if (typeof source === 'string') {
+    dataParam = source;
+  } else if (source instanceof Uint8Array) {
+    dataParam = new Uint8Array(source.buffer.slice(source.byteOffset, source.byteOffset + source.byteLength));
+  } else {
+    dataParam = new Uint8Array(source.slice(0));
+  }
+
   const loadingTask = pdfjsLib.getDocument(
-    typeof source === 'string'
-      ? source
-      : { data: source instanceof Uint8Array ? source : new Uint8Array(source) }
+    typeof dataParam === 'string'
+      ? dataParam
+      : {
+          data: dataParam,
+          isEvalSupported: false,
+          useSystemFonts: true,
+        }
   );
+
   return await loadingTask.promise;
 }
 
@@ -108,8 +121,8 @@ export async function generatePageThumbnail(
   const viewport = page.getViewport({ scale });
 
   const offscreenCanvas = document.createElement('canvas');
-  offscreenCanvas.width = viewport.width;
-  offscreenCanvas.height = viewport.height;
+  offscreenCanvas.width = Math.floor(viewport.width);
+  offscreenCanvas.height = Math.floor(viewport.height);
 
   const ctx = offscreenCanvas.getContext('2d');
   if (!ctx) return '';

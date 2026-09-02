@@ -75,7 +75,8 @@
 
   async function processPdfBuffer(buffer: ArrayBuffer, title: string, fileSize: number) {
     statusMessage = 'Parsing PDF slides...';
-    const doc = await loadPdfDocument(buffer);
+    const presentationBuffer = buffer.slice(0);
+    const doc = await loadPdfDocument(buffer.slice(0));
 
     statusMessage = 'Extracting slide metadata...';
     const meta = await extractPdfMetadata(doc);
@@ -90,7 +91,7 @@
       fileSize,
       totalPages: meta.totalPages,
       aspectRatio: meta.aspectRatio,
-      data: buffer,
+      data: presentationBuffer,
       thumbnailUrl,
       createdAt: now,
       expiresAt: now + 24 * 60 * 60 * 1000, // 24-hour expiration

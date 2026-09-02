@@ -40,10 +40,14 @@
   }
 
   async function handlePresentationLoaded(pres: Presentation, doc: any) {
-    await savePresentationToLocal(pres);
     activePresentation = pres;
     activePdfDoc = doc;
-    await refreshRecentList();
+    try {
+      await savePresentationToLocal(pres);
+      await refreshRecentList();
+    } catch (err) {
+      console.warn('Could not save to local IndexedDB:', err);
+    }
   }
 
   async function resumePresentation(pres: Presentation) {
