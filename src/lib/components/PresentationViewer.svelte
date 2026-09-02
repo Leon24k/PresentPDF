@@ -8,7 +8,6 @@
   import PresenterHUD from './PresenterHUD.svelte';
   import ThumbnailGrid from './ThumbnailGrid.svelte';
   import ShortcutsModal from './ShortcutsModal.svelte';
-  import ExpirationBadge from './ExpirationBadge.svelte';
 
   interface Props {
     presentation: Presentation;
@@ -71,7 +70,6 @@
       <div class="px-3 py-1.5 rounded-xl glass-pill text-xs font-semibold text-slate-300 max-w-xs truncate shadow">
         {presentation.title}
       </div>
-      <ExpirationBadge expiresAt={presentation.expiresAt} />
     </div>
   </div>
 

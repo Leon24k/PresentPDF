@@ -7,6 +7,9 @@ if (typeof window !== 'undefined' && typeof Worker !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 }
 
+// Track active render tasks per canvas element to cancel ongoing renders cleanly
+const activeRenderTasks = new WeakMap<HTMLCanvasElement, any>();
+
 /**
  * Calculates the aspect ratio category of a slide based on width and height
  */
@@ -54,7 +57,7 @@ export async function loadPdfDocument(source: ArrayBuffer | Uint8Array | string)
 }
 
 /**
- * Renders a specific PDF page to an HTML5 Canvas with High-DPI support
+ * Renders a specific PDF page to an HTML5 Canvas with High-DPI support and cancellation safety
  */
 export async function renderPdfPageToCanvas(
   doc: pdfjsLib.PDFDocumentProxy,
@@ -62,6 +65,15 @@ export async function renderPdfPageToCanvas(
   canvas: HTMLCanvasElement,
   options: { scale?: number; fitWidth?: number; fitHeight?: number } = {}
 ): Promise<{ width: number; height: number; scale: number }> {
+  // Cancel previous render on this canvas if still active
+  const existingTask = activeRenderTasks.get(canvas);
+  if (existingTask) {
+    try {
+      existingTask.cancel();
+    } catch {}
+    activeRenderTasks.delete(canvas);
+  }
+
   const page = await doc.getPage(pageNumber);
   const unscaledViewport = page.getViewport({ scale: 1.0 });
 
@@ -97,7 +109,23 @@ export async function renderPdfPageToCanvas(
     viewport: viewport,
   };
 
-  await page.render(renderContext).promise;
+  const renderTask = page.render(renderContext);
+  activeRenderTasks.set(canvas, renderTask);
+
+  try {
+    await renderTask.promise;
+    activeRenderTasks.delete(canvas);
+  } catch (err: any) {
+    activeRenderTasks.delete(canvas);
+    if (err?.name === 'RenderingCancelledException') {
+      return {
+        width: viewport.width / dpr,
+        height: viewport.height / dpr,
+        scale: computedScale,
+      };
+    }
+    throw err;
+  }
 
   return {
     width: viewport.width / dpr,

@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { renderPdfPageToCanvas } from '../services/pdfEngine';
   import type { AspectRatio } from '../types';
 
@@ -16,9 +15,6 @@
   let canvasEl = $state<HTMLCanvasElement | null>(null);
   let isLoading = $state<boolean>(true);
   let renderError = $state<string | null>(null);
-
-  // In-memory cache for rendered pages
-  const pageCache = new Map<number, string>();
 
   $effect(() => {
     if (doc && pageNumber && canvasEl) {
@@ -38,6 +34,10 @@
       });
       isLoading = false;
     } catch (err: any) {
+      if (err?.name === 'RenderingCancelledException') {
+        // Ignored: intentional cancellation when user flips slide
+        return;
+      }
       console.error('Error rendering page:', pageNumber, err);
       renderError = err?.message || 'Failed to render slide';
       isLoading = false;
