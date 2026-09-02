@@ -198,17 +198,17 @@
         </div>
 
         <!-- Limits and Security Info -->
-        <div class="flex items-center gap-4 text-xs text-slate-500 pt-2">
+        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs text-slate-400 pt-2">
           <span class="flex items-center gap-1">
             <FileText class="w-3.5 h-3.5" /> Up to 100 MB
           </span>
           <span>•</span>
-          <span class="flex items-center gap-1">
-            <Clock class="w-3.5 h-3.5 text-emerald-400" /> Auto-purged in 24 Hours
+          <span class="flex items-center gap-1 text-emerald-400 font-medium">
+            <Shield class="w-3.5 h-3.5" /> 100% Private (Never leaves your browser)
           </span>
           <span>•</span>
-          <span class="flex items-center gap-1">
-            <Shield class="w-3.5 h-3.5 text-indigo-400" /> 100% Private Client Mode
+          <span class="flex items-center gap-1 text-slate-400">
+            <Clock class="w-3.5 h-3.5 text-brand-400" /> Auto-purged in 24 Hours
           </span>
         </div>
 

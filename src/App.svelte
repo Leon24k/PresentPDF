@@ -137,12 +137,23 @@
       <!-- Active / Recent Presentations List -->
       {#if recentPresentations.length > 0}
         <section class="max-w-4xl w-full mx-auto px-4 mt-12 mb-8 animate-fade-in">
-          <div class="flex items-center justify-between mb-5">
-            <div class="flex items-center gap-2">
-              <Clock class="w-4 h-4 text-brand-400" />
-              <h3 class="text-lg font-bold text-white font-display">Active Presentations</h3>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+            <div class="flex items-center gap-2.5">
+              <div class="p-2 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400">
+                <Clock class="w-4 h-4" />
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white font-display">Active Presentations</h3>
+                <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>100% Private to this device & browser • Auto-purged in 24 hours</span>
+                </p>
+              </div>
             </div>
-            <span class="text-xs text-slate-400">Auto-expires after 24 hours</span>
+            
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-medium w-fit">
+              <span>🔒 Only visible to you</span>
+            </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
