@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { getTransitionClass } from './transitionHelper';
   import SlideCanvas from './SlideCanvas.svelte';
   import type { TransitionStyle, AspectRatio } from '../types';
@@ -47,6 +48,10 @@
         outgoingSlide = null;
       }, 650);
     }
+  });
+
+  onDestroy(() => {
+    if (transitionTimer) clearTimeout(transitionTimer);
   });
 </script>
 

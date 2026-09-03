@@ -158,7 +158,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="absolute inset-0 w-full h-full {isActive ? 'pointer-events-auto' : 'pointer-events-none'} z-25">
+<div class="absolute inset-0 w-full h-full {isActive ? 'pointer-events-auto' : 'pointer-events-none'} z-20">
   <canvas
     bind:this={canvasEl}
     onpointerdown={startDrawing}

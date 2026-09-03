@@ -3,6 +3,7 @@
   import type { Presentation } from './lib/types';
   import {
     savePresentationToLocal,
+    getPresentationFromLocal,
     listLocalPresentations,
     deleteLocalPresentation,
     purgeExpiredPresentations,
@@ -25,7 +26,7 @@
   } from 'lucide-svelte';
 
   let activePresentation = $state<Presentation | null>(null);
-  let activePdfDoc = $state<any | null>(null);
+  let activePdfDoc = $state<any>(null);
   let recentPresentations = $state<Presentation[]>([]);
   let copiedId = $state<string | null>(null);
 
@@ -33,6 +34,15 @@
     // Purge expired presentations older than 24h
     await purgeExpiredPresentations();
     await refreshRecentList();
+
+    // Deep-link support: auto-resume presentation if #pres=ID exists in URL
+    if (typeof window !== 'undefined' && window.location.hash.startsWith('#pres=')) {
+      const presId = window.location.hash.replace('#pres=', '');
+      const item = await getPresentationFromLocal(presId);
+      if (item) {
+        await resumePresentation(item);
+      }
+    }
   });
 
   async function refreshRecentList() {
@@ -42,6 +52,9 @@
   async function handlePresentationLoaded(pres: Presentation, doc: any) {
     activePresentation = pres;
     activePdfDoc = doc;
+    if (typeof window !== 'undefined') {
+      history.replaceState(null, '', `#pres=${pres.id}`);
+    }
     try {
       await savePresentationToLocal(pres);
       await refreshRecentList();
@@ -56,9 +69,21 @@
       const doc = await loadPdfDocument(pres.data);
       activePresentation = pres;
       activePdfDoc = doc;
+      if (typeof window !== 'undefined') {
+        history.replaceState(null, '', `#pres=${pres.id}`);
+      }
     } catch (e) {
       console.error('Error reloading presentation document', e);
     }
+  }
+
+  function handleExitPresentation() {
+    activePresentation = null;
+    activePdfDoc = null;
+    if (typeof window !== 'undefined' && window.location.hash) {
+      history.replaceState(null, '', window.location.pathname);
+    }
+    refreshRecentList();
   }
 
   async function handleDelete(id: string, e: MouseEvent) {
@@ -77,12 +102,6 @@
         copiedId = null;
       }, 2500);
     }
-  }
-
-  function handleExitPresentation() {
-    activePresentation = null;
-    activePdfDoc = null;
-    refreshRecentList();
   }
 </script>
 

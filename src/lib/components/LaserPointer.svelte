@@ -34,13 +34,13 @@
   }
 
   function renderLoop() {
-    if (!canvasEl) return;
+    if (!canvasEl || !isActive) return;
     const ctx = canvasEl.getContext('2d');
     if (!ctx) return;
 
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
-    if (isActive && mousePos) {
+    if (mousePos) {
       // Draw trails
       for (let i = trail.length - 1; i >= 0; i--) {
         const p = trail[i];
@@ -97,10 +97,30 @@
     canvasEl.height = canvasEl.parentElement?.clientHeight || window.innerHeight;
   }
 
+  // Only run 60fps animation loop when laser is active to save CPU/battery
+  $effect(() => {
+    if (isActive) {
+      resizeCanvas();
+      if (!animId) {
+        animId = requestAnimationFrame(renderLoop);
+      }
+    } else {
+      if (animId) {
+        cancelAnimationFrame(animId);
+        animId = null;
+      }
+      if (canvasEl) {
+        const ctx = canvasEl.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+      }
+      trail = [];
+      mousePos = null;
+    }
+  });
+
   onMount(() => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-    animId = requestAnimationFrame(renderLoop);
   });
 
   onDestroy(() => {
@@ -116,7 +136,7 @@
   bind:this={canvasEl}
   onmousemove={handleMouseMove}
   onmouseleave={handleMouseLeave}
-  class="absolute inset-0 w-full h-full z-30 pointer-events-auto {isActive
-    ? 'cursor-none'
+  class="absolute inset-0 w-full h-full z-30 {isActive
+    ? 'pointer-events-auto cursor-none'
     : 'pointer-events-none'}"
 ></canvas>
