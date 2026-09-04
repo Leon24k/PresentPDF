@@ -33,6 +33,10 @@ export function createPresentationStore() {
   let drawingStrokes = $state<DrawingStroke[]>([]);
   let isLoading = $state<boolean>(false);
 
+  // Spotlight mode
+  let isSpotlightActive = $state<boolean>(false);
+  let spotlightRadius = $state<number>(140);
+
   let timerHandle: ReturnType<typeof setInterval> | null = null;
   let autoPlayHandle: ReturnType<typeof setInterval> | null = null;
 
@@ -46,6 +50,7 @@ export function createPresentationStore() {
     isGridOpen = false;
     isLaserActive = false;
     isPenActive = false;
+    isSpotlightActive = false;
     drawingStrokes = [];
     elapsedSeconds = 0;
     startTimer();
@@ -114,12 +119,30 @@ export function createPresentationStore() {
 
   function toggleLaser() {
     isLaserActive = !isLaserActive;
-    if (isLaserActive) isPenActive = false;
+    if (isLaserActive) {
+      isPenActive = false;
+      isSpotlightActive = false;
+    }
   }
 
   function togglePen() {
     isPenActive = !isPenActive;
-    if (isPenActive) isLaserActive = false;
+    if (isPenActive) {
+      isLaserActive = false;
+      isSpotlightActive = false;
+    }
+  }
+
+  function toggleSpotlight() {
+    isSpotlightActive = !isSpotlightActive;
+    if (isSpotlightActive) {
+      isLaserActive = false;
+      isPenActive = false;
+    }
+  }
+
+  function setSpotlightRadius(radius: number) {
+    spotlightRadius = Math.max(60, Math.min(350, radius));
   }
 
   function toggleHighlighter() {
@@ -272,6 +295,12 @@ export function createPresentationStore() {
         togglePen();
         break;
 
+      case 's':
+      case 'S':
+        e.preventDefault();
+        toggleSpotlight();
+        break;
+
       case 'f':
       case 'F':
         e.preventDefault();
@@ -289,6 +318,8 @@ export function createPresentationStore() {
           isGridOpen = false;
         } else if (isShortcutsOpen) {
           isShortcutsOpen = false;
+        } else if (isSpotlightActive) {
+          isSpotlightActive = false;
         } else if (isBlackout) {
           isBlackout = false;
         } else if (isWhiteout) {
@@ -310,6 +341,8 @@ export function createPresentationStore() {
     get isTransitioning() { return isTransitioning; },
     get isLaserActive() { return isLaserActive; },
     get isPenActive() { return isPenActive; },
+    get isSpotlightActive() { return isSpotlightActive; },
+    get spotlightRadius() { return spotlightRadius; },
     get isHighlighter() { return isHighlighter; },
     get penColor() { return penColor; },
     get penSize() { return penSize; },
@@ -334,6 +367,8 @@ export function createPresentationStore() {
     setTransition,
     toggleLaser,
     togglePen,
+    toggleSpotlight,
+    setSpotlightRadius,
     toggleHighlighter,
     setPenColor,
     setPenSize,

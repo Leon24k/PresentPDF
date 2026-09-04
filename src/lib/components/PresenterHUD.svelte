@@ -9,6 +9,7 @@
     Pause,
     Crosshair,
     PenTool,
+    Focus,
     Moon,
     Maximize,
     Minimize,
@@ -24,6 +25,7 @@
     transitionStyle: TransitionStyle;
     isLaserActive: boolean;
     isPenActive: boolean;
+    isSpotlightActive: boolean;
     isBlackout: boolean;
     isFullscreen: boolean;
     isAutoPlaying: boolean;
@@ -35,6 +37,7 @@
     onSetTransition: (style: TransitionStyle) => void;
     onToggleLaser: () => void;
     onTogglePen: () => void;
+    onToggleSpotlight: () => void;
     onToggleBlackout: () => void;
     onToggleGrid: () => void;
     onToggleFullscreen: () => void;
@@ -53,6 +56,7 @@
     transitionStyle,
     isLaserActive,
     isPenActive,
+    isSpotlightActive,
     isBlackout,
     isFullscreen,
     isAutoPlaying,
@@ -64,6 +68,7 @@
     onSetTransition,
     onToggleLaser,
     onTogglePen,
+    onToggleSpotlight,
     onToggleBlackout,
     onToggleGrid,
     onToggleFullscreen,
@@ -242,6 +247,17 @@
       title="Toggle Pen Annotator (A / P)"
     >
       <PenTool class="w-4 h-4" />
+    </button>
+
+    <!-- Spotlight Focus Tool -->
+    <button
+      onclick={onToggleSpotlight}
+      class="p-2 rounded-xl transition-all duration-200 {isSpotlightActive
+        ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/50 shadow-lg shadow-indigo-500/30'
+        : 'text-slate-400 hover:text-white hover:bg-white/10'}"
+      title="Spotlight Focus Mode (S)"
+    >
+      <Focus class="w-4 h-4" />
     </button>
 
     <!-- Blackout Screen Tool -->

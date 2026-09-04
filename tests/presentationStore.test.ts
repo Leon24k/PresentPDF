@@ -66,5 +66,27 @@ describe('Presentation Store (Svelte 5 Runes)', () => {
     // 'G' for Grid view
     store.handleKeydown(new KeyboardEvent('keydown', { key: 'g' }));
     expect(store.isGridOpen).toBe(true);
+    // Close grid with Escape
+    store.handleKeydown(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(store.isGridOpen).toBe(false);
+
+    // 'S' for Spotlight mode
+    expect(store.isSpotlightActive).toBe(false);
+    store.handleKeydown(new KeyboardEvent('keydown', { key: 's' }));
+    expect(store.isSpotlightActive).toBe(true);
+
+    // Escape clears spotlight
+    store.handleKeydown(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(store.isSpotlightActive).toBe(false);
+  });
+
+  it('adjusts spotlight radius within clamped boundaries', () => {
+    expect(store.spotlightRadius).toBe(140);
+    store.setSpotlightRadius(200);
+    expect(store.spotlightRadius).toBe(200);
+    store.setSpotlightRadius(500); // Clamped to 350
+    expect(store.spotlightRadius).toBe(350);
+    store.setSpotlightRadius(20); // Clamped to 60
+    expect(store.spotlightRadius).toBe(60);
   });
 });

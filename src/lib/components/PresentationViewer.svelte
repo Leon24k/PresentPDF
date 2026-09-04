@@ -5,6 +5,7 @@
   import SlideTransitionWrapper from './SlideTransitionWrapper.svelte';
   import LaserPointer from './LaserPointer.svelte';
   import PenAnnotator from './PenAnnotator.svelte';
+  import SpotlightOverlay from './SpotlightOverlay.svelte';
   import PresenterHUD from './PresenterHUD.svelte';
   import ThumbnailGrid from './ThumbnailGrid.svelte';
   import ShortcutsModal from './ShortcutsModal.svelte';
@@ -57,6 +58,8 @@
           store.isGridOpen = false;
         } else if (store.isShortcutsOpen) {
           store.toggleShortcuts();
+        } else if (store.isSpotlightActive) {
+          store.toggleSpotlight();
         } else if (store.isBlackout) {
           store.toggleBlackout();
         } else if (store.isWhiteout) {
@@ -178,6 +181,13 @@
     <!-- Laser Pointer Canvas Overlay -->
     <LaserPointer isActive={store.isLaserActive} />
 
+    <!-- Spotlight Focus Overlay Screen -->
+    <SpotlightOverlay
+      isActive={store.isSpotlightActive}
+      initialRadius={store.spotlightRadius}
+      onRadiusChange={(r) => store.setSpotlightRadius(r)}
+    />
+
     <!-- Pen Annotation Canvas Overlay -->
     <PenAnnotator
       isActive={store.isPenActive}
@@ -210,6 +220,7 @@
     transitionStyle={store.transitionStyle}
     isLaserActive={store.isLaserActive}
     isPenActive={store.isPenActive}
+    isSpotlightActive={store.isSpotlightActive}
     isBlackout={store.isBlackout}
     isFullscreen={store.isFullscreen}
     isAutoPlaying={store.isAutoPlaying}
@@ -221,6 +232,7 @@
     onSetTransition={(style) => store.setTransition(style)}
     onToggleLaser={() => store.toggleLaser()}
     onTogglePen={() => store.togglePen()}
+    onToggleSpotlight={() => store.toggleSpotlight()}
     onToggleBlackout={() => store.toggleBlackout()}
     onToggleGrid={() => store.toggleGrid()}
     onToggleFullscreen={() => store.toggleFullscreen()}
