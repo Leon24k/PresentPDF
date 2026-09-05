@@ -50,13 +50,13 @@
     }
   }
 
-  onMount(async () => {
-    // Purge expired presentations older than 24h
-    await purgeExpiredPresentations();
-    await refreshRecentList();
-
-    // Deep-link support: auto-resume presentation if #pres=ID or #presenter=ID exists in URL
-    await checkUrlHash();
+  onMount(() => {
+    // Purge expired presentations and check initial deep-link hash
+    (async () => {
+      await purgeExpiredPresentations();
+      await refreshRecentList();
+      await checkUrlHash();
+    })();
 
     const onHashChange = async () => {
       await checkUrlHash();
