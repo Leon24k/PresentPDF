@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import type { Presentation } from '../types';
   import { createPresentationStore } from '../stores/presentationStore.svelte';
+  import { createPresenterSync, type PresenterSyncChannel, type PresenterSyncMessage } from '../services/presenterSync';
   import SlideTransitionWrapper from './SlideTransitionWrapper.svelte';
   import LaserPointer from './LaserPointer.svelte';
   import PenAnnotator from './PenAnnotator.svelte';
@@ -27,6 +28,15 @@
   let touchStartX = 0;
   let touchStartY = 0;
 
+  let syncChannel: PresenterSyncChannel | null = null;
+  let lastSyncedSlide = 1;
+
+  function openPresenterConsole() {
+    if (typeof window === 'undefined') return;
+    const url = `${window.location.origin}${window.location.pathname}#presenter=${presentation.id}`;
+    window.open(url, `presentpdf_presenter_${presentation.id}`, 'width=1280,height=800,menubar=no,toolbar=no,location=no,status=no');
+  }
+
   function handleUserActivity() {
     isMouseActive = true;
     if (mouseIdleTimeout) clearTimeout(mouseIdleTimeout);
@@ -37,12 +47,62 @@
 
   onMount(() => {
     store.init(presentation, pdfDoc);
+    lastSyncedSlide = store.currentSlide;
+
+    // Initialize cross-window synchronization channel
+    syncChannel = createPresenterSync(presentation.id);
+    const unsubscribeSync = syncChannel.subscribe((msg: PresenterSyncMessage) => {
+      switch (msg.type) {
+        case 'SLIDE_CHANGE':
+          if (msg.slide !== store.currentSlide) {
+            lastSyncedSlide = msg.slide;
+            store.goToSlide(msg.slide);
+          }
+          break;
+        case 'REQUEST_SYNC':
+          syncChannel?.broadcast({
+            type: 'SYNC_STATE',
+            slide: store.currentSlide,
+            elapsedSeconds: store.elapsedSeconds,
+            isTimerRunning: store.isTimerRunning,
+            isBlackout: store.isBlackout,
+            isWhiteout: store.isWhiteout,
+          });
+          break;
+        case 'BLACKOUT_TOGGLE':
+          if (store.isBlackout !== msg.isBlackout) {
+            store.toggleBlackout();
+          }
+          break;
+        case 'WHITEOUT_TOGGLE':
+          if (store.isWhiteout !== msg.isWhiteout) {
+            store.toggleWhiteout();
+          }
+          break;
+        case 'TIMER_ACTION':
+          if (msg.action === 'start') {
+            store.startTimer();
+          } else if (msg.action === 'stop') {
+            store.stopTimer();
+          } else if (msg.action === 'reset') {
+            store.resetTimer();
+          }
+          break;
+      }
+    });
 
     const onKeyDown = (e: KeyboardEvent) => {
       handleUserActivity();
 
       const target = e.target as HTMLElement;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        return;
+      }
+
+      // Alt + P or Option + P opens Presenter View in dual screen mode
+      if (e.altKey && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault();
+        openPresenterConsole();
         return;
       }
 
@@ -83,11 +143,26 @@
     handleUserActivity();
 
     return () => {
+      unsubscribeSync();
+      syncChannel?.destroy();
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('mousemove', handleUserActivity);
       if (mouseIdleTimeout) clearTimeout(mouseIdleTimeout);
       store.stopTimer();
     };
+  });
+
+  // Track slide changes on audience screen and broadcast to Presenter Console
+  $effect(() => {
+    const current = store.currentSlide;
+    if (current !== lastSyncedSlide) {
+      lastSyncedSlide = current;
+      syncChannel?.broadcast({
+        type: 'SLIDE_CHANGE',
+        slide: current,
+        direction: store.transitionDirection,
+      });
+    }
   });
 
   function handleTouchStart(e: TouchEvent) {
@@ -242,6 +317,7 @@
     onStartTimer={() => store.startTimer()}
     onStopTimer={() => store.stopTimer()}
     onResetTimer={() => store.resetTimer()}
+    onOpenPresenterConsole={openPresenterConsole}
     onExit={onExit}
   />
 

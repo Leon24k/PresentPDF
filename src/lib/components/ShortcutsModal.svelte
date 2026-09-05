@@ -17,6 +17,7 @@
     { key: 'A / P', desc: 'Toggle Drawing Pen / Annotator' },
     { key: 'B / .', desc: 'Blackout screen (Focus attention)' },
     { key: 'W / ,', desc: 'Whiteout screen' },
+    { key: 'Alt + P', desc: 'Dual-Screen Presenter View (Canva-style)' },
     { key: 'F', desc: 'Toggle Fullscreen Mode' },
     { key: 'H', desc: 'Toggle / Hide Toolbars (Zen Mode)' },
     { key: 'Home / End', desc: 'Jump to First / Last slide' },

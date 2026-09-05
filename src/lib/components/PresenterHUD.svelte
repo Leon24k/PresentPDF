@@ -17,6 +17,7 @@
     ArrowLeft,
     Sparkles,
     EyeOff,
+    MonitorPlay,
   } from 'lucide-svelte';
 
   interface Props {
@@ -47,6 +48,7 @@
     onStartTimer: () => void;
     onStopTimer: () => void;
     onResetTimer: () => void;
+    onOpenPresenterConsole?: () => void;
     onExit: () => void;
   }
 
@@ -78,6 +80,7 @@
     onStartTimer,
     onStopTimer,
     onResetTimer,
+    onOpenPresenterConsole,
     onExit,
   }: Props = $props();
 
@@ -270,6 +273,17 @@
     >
       <Moon class="w-4 h-4" />
     </button>
+
+    <!-- Dual-Screen Presenter View -->
+    {#if onOpenPresenterConsole}
+      <button
+        onclick={onOpenPresenterConsole}
+        class="p-2 rounded-xl text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-colors"
+        title="Dual-Screen Presenter View (Alt+P)"
+      >
+        <MonitorPlay class="w-4 h-4" />
+      </button>
+    {/if}
 
     <!-- Autoplay Slideshow -->
     <button

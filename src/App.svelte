@@ -12,6 +12,7 @@
   import { createShareableLink } from './lib/services/cloudStorage';
   import Dropzone from './lib/components/Dropzone.svelte';
   import PresentationViewer from './lib/components/PresentationViewer.svelte';
+  import PresenterConsole from './lib/components/PresenterConsole.svelte';
   import ExpirationBadge from './lib/components/ExpirationBadge.svelte';
   import {
     Play,
@@ -27,22 +28,44 @@
 
   let activePresentation = $state<Presentation | null>(null);
   let activePdfDoc = $state<any>(null);
+  let isPresenterMode = $state<boolean>(false);
   let recentPresentations = $state<Presentation[]>([]);
   let copiedId = $state<string | null>(null);
+
+  async function checkUrlHash() {
+    if (typeof window === 'undefined') return;
+    const hash = window.location.hash;
+    if (hash.startsWith('#presenter=')) {
+      const presId = hash.replace('#presenter=', '');
+      const item = await getPresentationFromLocal(presId);
+      if (item) {
+        await resumePresentation(item, true);
+      }
+    } else if (hash.startsWith('#pres=')) {
+      const presId = hash.replace('#pres=', '');
+      const item = await getPresentationFromLocal(presId);
+      if (item) {
+        await resumePresentation(item, false);
+      }
+    }
+  }
 
   onMount(async () => {
     // Purge expired presentations older than 24h
     await purgeExpiredPresentations();
     await refreshRecentList();
 
-    // Deep-link support: auto-resume presentation if #pres=ID exists in URL
-    if (typeof window !== 'undefined' && window.location.hash.startsWith('#pres=')) {
-      const presId = window.location.hash.replace('#pres=', '');
-      const item = await getPresentationFromLocal(presId);
-      if (item) {
-        await resumePresentation(item);
-      }
-    }
+    // Deep-link support: auto-resume presentation if #pres=ID or #presenter=ID exists in URL
+    await checkUrlHash();
+
+    const onHashChange = async () => {
+      await checkUrlHash();
+    };
+    window.addEventListener('hashchange', onHashChange);
+
+    return () => {
+      window.removeEventListener('hashchange', onHashChange);
+    };
   });
 
   async function refreshRecentList() {
@@ -52,6 +75,7 @@
   async function handlePresentationLoaded(pres: Presentation, doc: any) {
     activePresentation = pres;
     activePdfDoc = doc;
+    isPresenterMode = false;
     if (typeof window !== 'undefined') {
       history.replaceState(null, '', `#pres=${pres.id}`);
     }
@@ -63,14 +87,16 @@
     }
   }
 
-  async function resumePresentation(pres: Presentation) {
+  async function resumePresentation(pres: Presentation, asPresenter = false) {
     if (!pres.data) return;
     try {
       const doc = await loadPdfDocument(pres.data);
       activePresentation = pres;
       activePdfDoc = doc;
+      isPresenterMode = asPresenter;
       if (typeof window !== 'undefined') {
-        history.replaceState(null, '', `#pres=${pres.id}`);
+        const hashTag = asPresenter ? `#presenter=${pres.id}` : `#pres=${pres.id}`;
+        history.replaceState(null, '', hashTag);
       }
     } catch (e) {
       console.error('Error reloading presentation document', e);
@@ -80,6 +106,7 @@
   function handleExitPresentation() {
     activePresentation = null;
     activePdfDoc = null;
+    isPresenterMode = false;
     if (typeof window !== 'undefined' && window.location.hash) {
       history.replaceState(null, '', window.location.pathname);
     }
@@ -106,11 +133,19 @@
 </script>
 
 {#if activePresentation && activePdfDoc}
-  <PresentationViewer
-    presentation={activePresentation}
-    pdfDoc={activePdfDoc}
-    onExit={handleExitPresentation}
-  />
+  {#if isPresenterMode}
+    <PresenterConsole
+      presentation={activePresentation}
+      pdfDoc={activePdfDoc}
+      onExit={handleExitPresentation}
+    />
+  {:else}
+    <PresentationViewer
+      presentation={activePresentation}
+      pdfDoc={activePdfDoc}
+      onExit={handleExitPresentation}
+    />
+  {/if}
 {:else}
   <div class="min-h-screen flex flex-col justify-between bg-dark-bg text-slate-100 selection:bg-brand-500 selection:text-white">
     <!-- Navbar Header -->

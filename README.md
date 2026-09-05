@@ -32,6 +32,7 @@ When you export presentations from **Canva**, **Gamma AI**, **Tome**, or **Googl
 
 ## ✨ Key Features
 
+* 🖥️ **Canva-Style Dual-Screen Presenter View (`Alt + P`):** Launch a synchronized companion console displaying Current Slide, Next Slide Preview, live stopwatch, and auto-saving speaker notes via zero-latency `BroadcastChannel`.
 * 🎲 **6 Hardware-Accelerated 3D Transitions:** 3D Cube Rotation, Keynote Zoom, Smooth Slide, 3D Card Flip, Convex Carousel, and Minimalist Fade running at silky 60–120 FPS.
 * 🔴 **Virtual Glowing Laser Pointer:** Neon red laser dot with dynamic trailing glow particles following your cursor.
 * ✏️ **Live Pen & Highlighter Annotator:** Freehand sketch and highlight directly on your slides during live presentations.
@@ -65,6 +66,7 @@ When you export presentations from **Canva**, **Gamma AI**, **Tome**, or **Googl
 | `G` | **Toggle Slide Grid Overview** |
 | `L` | **Toggle Virtual Laser Pointer** |
 | `A` / `P` | **Toggle Pen & Highlighter Annotator** |
+| `Alt` + `P` | **Open Dual-Screen Presenter View** (Canva-style) |
 | `B` / `.` | **Toggle Blackout Screen** (Focus audience) |
 | `W` / `,` | **Toggle Whiteout Screen** |
 | `F` | **Toggle Fullscreen Mode** |
